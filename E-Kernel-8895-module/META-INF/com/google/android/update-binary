@@ -1,0 +1,22 @@
+#!/sbin/sh
+################
+# update-binary for Magisk/KernelSU module
+################
+
+OUTFD=$2
+ZIPFILE=$3
+
+ui_print() {
+    echo -e "ui_print $1\nui_print" >> /proc/self/fd/$OUTFD
+}
+
+. /data/adb/magisk/util_functions.sh 2>/dev/null || {
+    # KernelSU fallback
+    . /data/adb/ksu/util_functions.sh 2>/dev/null || {
+        ui_print "! Cannot find util_functions.sh"
+        exit 1
+    }
+}
+
+install_module
+exit 0

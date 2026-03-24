@@ -1,0 +1,29 @@
+config EKERNEL_THERMAL_PROFILES
+	bool "E-Kernel thermal profiles (Balanced/Gaming/Cool)"
+	depends on EXYNOS_THERMAL
+	default y
+	help
+	  Enables three user-selectable thermal profiles for the
+	  Exynos 8895 SoC:
+	    0 = Balanced (default, Samsung-equivalent trip points)
+	    1 = Gaming (higher passive trip, delayed throttle onset)
+	    2 = Cool (aggressive early throttle, prioritize temps)
+
+	  Profiles are selectable at runtime via:
+	    /proc/ekernel/thermal_profile
+	  and at boot via kernel parameter:
+	    ekernel.thermal_profile=0/1/2
+
+	  A hard safety ceiling of 108°C is enforced on all profiles.
+
+config EKERNEL_CPU_OC
+	bool "E-Kernel CPU overclock step (+100 MHz)"
+	default n
+	help
+	  Adds an optional +100 MHz overclock step to the Mongoose M2
+	  big core frequency table. This is disabled by default for
+	  safety. Enable only if you understand the risks of
+	  overclocking on Exynos 8895.
+
+	  WARNING: Overclocking may cause instability, increased heat,
+	  and reduced component lifespan.
