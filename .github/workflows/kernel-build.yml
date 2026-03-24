@@ -1,0 +1,202 @@
+name: Build Greatlte
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - ".github/workflows/kernel-build.yml"
+      - "E-Kernel-8895-module/**"
+      - "EKernel-8895/**"
+      - "Makefile"
+      - "arch/**"
+      - "drivers/**"
+      - "ekernel-app/**"
+      - "fs/**"
+      - "include/**"
+      - "init/**"
+      - "kernel/**"
+      - "lib/**"
+      - "mm/**"
+      - "net/**"
+      - "scripts/**"
+      - "security/**"
+      - "sound/**"
+  pull_request:
+    paths:
+      - ".github/workflows/kernel-build.yml"
+      - "E-Kernel-8895-module/**"
+      - "EKernel-8895/**"
+      - "Makefile"
+      - "arch/**"
+      - "drivers/**"
+      - "ekernel-app/**"
+      - "fs/**"
+      - "include/**"
+      - "init/**"
+      - "kernel/**"
+      - "lib/**"
+      - "mm/**"
+      - "net/**"
+      - "scripts/**"
+      - "security/**"
+      - "sound/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: greatlte-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-app:
+    name: Build APK
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+          cache: gradle
+
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android platform
+        run: |
+          yes | sdkmanager --licenses >/dev/null || true
+          sdkmanager \
+            "platforms;android-36" \
+            "build-tools;36.0.0"
+
+      - name: Build APK
+        working-directory: ekernel-app
+        run: |
+          rm -f local.properties
+          chmod +x gradlew
+          ./gradlew --no-daemon assembleDebug
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ekernel-app-apk
+          path: ekernel-app/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+  build-greatlte:
+    name: Build greatlte kernel
+    needs: build-app
+    runs-on: ubuntu-22.04
+
+    env:
+      ARCH: arm64
+      SUBARCH: arm64
+      CROSS_COMPILE: aarch64-linux-gnu-
+      CROSS_COMPILE_ARM32: arm-linux-gnueabi-
+      OUT_DIR: out/greatlte
+      DEFCONFIG: exynos8895-greatlte_defconfig
+      DEVICE_DTB: exynos8895-greatlte_eur_open_06.dtb
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download APK artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ekernel-app-apk
+          path: artifacts/package
+
+      - name: Install kernel dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            bc \
+            bison \
+            build-essential \
+            cpio \
+            flex \
+            gcc-aarch64-linux-gnu \
+            gcc-arm-linux-gnueabi \
+            git \
+            libelf-dev \
+            libssl-dev \
+            perl \
+            python3 \
+            rsync \
+            unzip \
+            zip
+
+      - name: Configure kernel
+        run: |
+          mkdir -p "${OUT_DIR}"
+          set -o pipefail
+          {
+            make O="${OUT_DIR}" \
+              ARCH="${ARCH}" \
+              CROSS_COMPILE="${CROSS_COMPILE}" \
+              CROSS_COMPILE_ARM32="${CROSS_COMPILE_ARM32}" \
+              CCACHE= \
+              "${DEFCONFIG}"
+            make O="${OUT_DIR}" \
+              ARCH="${ARCH}" \
+              CROSS_COMPILE="${CROSS_COMPILE}" \
+              CROSS_COMPILE_ARM32="${CROSS_COMPILE_ARM32}" \
+              CCACHE= \
+              olddefconfig
+          } 2>&1 | tee "${OUT_DIR}/configure.log"
+
+      - name: Build kernel
+        run: |
+          set -o pipefail
+          make -j"$(nproc)" O="${OUT_DIR}" \
+            ARCH="${ARCH}" \
+            CROSS_COMPILE="${CROSS_COMPILE}" \
+            CROSS_COMPILE_ARM32="${CROSS_COMPILE_ARM32}" \
+            CCACHE= \
+            Image.gz Image.gz-dtb dtbs dtb.img 2>&1 | tee "${OUT_DIR}/build.log"
+
+      - name: Package module zip
+        run: |
+          mkdir -p artifacts/package artifacts/tmp-module
+          cp -a E-Kernel-8895-module/. artifacts/tmp-module/
+          (
+            cd artifacts/tmp-module
+            zip -r ../package/ekernel-module.zip .
+          )
+
+      - name: Collect greatlte artifacts
+        run: |
+          mkdir -p artifacts/package/dts/exynos
+          mv artifacts/package/app-debug.apk artifacts/package/ekernel-app.apk
+          cp "${OUT_DIR}/.config" artifacts/package/
+          cp "${OUT_DIR}/System.map" artifacts/package/
+          cp "${OUT_DIR}/build.log" artifacts/package/
+          cp "${OUT_DIR}/arch/arm64/boot/Image.gz" artifacts/package/
+          cp "${OUT_DIR}/arch/arm64/boot/Image.gz-dtb" artifacts/package/
+          cp "${OUT_DIR}/arch/arm64/boot/dtb.img" artifacts/package/
+          cp "${OUT_DIR}/arch/arm64/boot/dts/exynos/${DEVICE_DTB}" artifacts/package/dts/exynos/
+          cp EKernel-8895/anykernel.sh artifacts/package/
+
+      - name: Upload greatlte artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ekernel-8895-greatlte
+          path: artifacts/package
+          if-no-files-found: error
+
+      - name: Upload kernel log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ekernel-8895-greatlte-log
+          path: out/greatlte/*.log
+          if-no-files-found: warn
