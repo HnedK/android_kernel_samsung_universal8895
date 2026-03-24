@@ -53,8 +53,9 @@ endef
 include/generated/vdso-offsets.h: $(obj)/vdso.so.dbg FORCE
 	$(call if_changed,vdsosym)
 
-# Assembly rules for the .S files
-$(obj-vdso): %.o: %.S FORCE
+# Assembly rules for the .S files. Use the source tree explicitly so
+# O= builds do not look for these inputs in the object directory.
+$(obj-vdso): %.o: $(srctree)/$(src)/%.S FORCE
 	$(call if_changed_dep,vdsoas)
 
 # Actual build commands
