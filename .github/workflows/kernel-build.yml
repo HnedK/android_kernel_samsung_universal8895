@@ -135,6 +135,10 @@ jobs:
             unzip \
             zip
 
+      - name: Prepare kernel scripts
+        run: |
+          chmod +x scripts/fetch-latest-wireguard.sh
+
       - name: Configure kernel
         run: |
           mkdir -p "${OUT_DIR}"

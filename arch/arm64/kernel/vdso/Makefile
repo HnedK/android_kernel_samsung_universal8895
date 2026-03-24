@@ -8,7 +8,7 @@
 obj-vdso := gettimeofday.o note.o sigreturn.o
 
 # Build rules
-targets := $(obj-vdso) vdso.so vdso.so.dbg
+targets := $(obj-vdso) vdso.so vdso.so.dbg vdso.lds
 obj-vdso := $(addprefix $(obj)/, $(obj-vdso))
 
 ccflags-y := -shared -fno-common -fno-builtin
@@ -29,8 +29,13 @@ CPPFLAGS_vdso.lds += -P -C -U$(ARCH)
 # Force dependency (incbin is bad)
 $(obj)/vdso.o : $(obj)/vdso.so
 
+# Build the linker script from the source tree so O= builds do not
+# incorrectly look for vdso.lds.S in the object directory.
+$(obj)/vdso.lds: $(srctree)/$(src)/vdso.lds.S FORCE
+	$(call if_changed_dep,cpp_lds_S)
+
 # Link rule for the .so file, .lds has to be first
-$(obj)/vdso.so.dbg: $(src)/vdso.lds $(obj-vdso)
+$(obj)/vdso.so.dbg: $(obj)/vdso.lds $(obj-vdso)
 	$(call if_changed,vdsold)
 
 # Strip rule for the .so file
