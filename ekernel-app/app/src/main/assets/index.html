@@ -141,6 +141,13 @@ select:focus,input:focus{border-color:var(--accent)}
 <option value="2">Cool</option>
 </select>
 </div>
+<div class="row">
+<label>Battery Bypass (Gaming)</label>
+<select id="bat-bypass" onchange="applyConfig('store_mode',this.value)">
+<option value="0">Normal Charging</option>
+<option value="1">Bypass Charging</option>
+</select>
+</div>
 </div>
 <div class="card">
 <h3>Thermal Stats</h3>
@@ -296,6 +303,8 @@ setSelect('cpu-gov',readConfig('cpu_governor')||liveGovernor);
 setSelect('io-sched',readConfig('io_scheduler'));
 setSelect('readahead',readConfig('read_ahead_kb'));
 setSelect('therm-profile',profileValue);
+var liveBatBypass=readLiveValue('/sys/class/power_supply/battery/store_mode');
+if(liveBatBypass)setSelect('bat-bypass',liveBatBypass);
 setSelect('net-tcp',readConfig('tcp_congestion')||liveTcp);
 var sw=readConfig('swappiness')||liveSwap;if(sw)document.getElementById('vm-swap').value=sw;
 var dr=readConfig('dirty_ratio')||liveDirty;if(dr)document.getElementById('vm-dirty').value=dr;

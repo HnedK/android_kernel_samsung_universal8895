@@ -1,0 +1,81 @@
+﻿
+  CC      drivers/acpi/
+acpica/uterror.o
+  CC      drivers/acpi/
+acpica/utxferror.o
+  CC      
+lib/fdt_strerror.o
+/home/runner/work/andro
+id_kernel_samsung_unive
+rsal8895/android_kernel
+_samsung_universal8895/
+include/media/videobuf2
+-ion.h:33:40: error: 
+â€˜ION_NUM_HEAPSâ€™ 
+undeclared (first use 
+in this function); did 
+you mean 
+â€˜VB2ION_NUM_HEAPSâ€™?
+/home/runner/work/andro
+id_kernel_samsung_unive
+rsal8895/android_kernel
+_samsung_universal8895/
+include/media/videobuf2
+-ion.h:31:33: error: â€
+˜ION_HEAP_SYSTEM_MASKâ€
+™ undeclared (first 
+use in this function); 
+did you mean â€˜EXYNOS_
+ION_HEAP_SYSTEM_MASKâ€™
+?
+make[6]: *** [/home/run
+ner/work/android_kernel
+_samsung_universal8895/
+android_kernel_samsung_
+universal8895/scripts/M
+akefile.build:266: driv
+ers/media/platform/exyn
+os/fimc-is2/fimc-is-mem
+.o] Error 1
+make[5]: *** [/home/run
+ner/work/android_kernel
+_samsung_universal8895/
+android_kernel_samsung_
+universal8895/scripts/M
+akefile.build:411: driv
+ers/media/platform/exyn
+os/fimc-is2] Error 2
+make[4]: *** [/home/run
+ner/work/android_kernel
+_samsung_universal8895/
+android_kernel_samsung_
+universal8895/scripts/M
+akefile.build:411: driv
+ers/media/platform/exyn
+os] Error 2
+make[3]: *** [/home/run
+ner/work/android_kernel
+_samsung_universal8895/
+android_kernel_samsung_
+universal8895/scripts/M
+akefile.build:411: driv
+ers/media/platform] 
+Error 2
+make[2]: *** [/home/run
+ner/work/android_kernel
+_samsung_universal8895/
+android_kernel_samsung_
+universal8895/scripts/M
+akefile.build:411: 
+drivers/media] Error 2
+make[1]: *** [/home/run
+ner/work/android_kernel
+_samsung_universal8895/
+android_kernel_samsung_
+universal8895/Makefile:
+1028: drivers] Error 2
+make: *** 
+[Makefile:150: 
+sub-make] Error 2
+
+

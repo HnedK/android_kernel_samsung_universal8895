@@ -1,0 +1,29 @@
+make[1]: Entering directory '/home/runner/work/android_kernel_samsung_universal8895/android_kernel_samsung_universal8895/out/greatlte'
+  HOSTCC  scripts/basic/fixdep
+  GEN     ./Makefile
+  HOSTCC  scripts/kconfig/conf.o
+  SHIPPED scripts/kconfig/zconf.tab.c
+  SHIPPED scripts/kconfig/zconf.lex.c
+  SHIPPED scripts/kconfig/zconf.hash.c
+  HOSTCC  scripts/kconfig/zconf.tab.o
+  HOSTLD  scripts/kconfig/conf
+arch/arm64/configs/exynos8895-greatlte_defconfig:5554:warning: override: reassigning to symbol HZ_300
+arch/arm64/configs/exynos8895-greatlte_defconfig:5554:warning: override: HZ_300 changes choice state
+arch/arm64/configs/exynos8895-greatlte_defconfig:5555:warning: override: reassigning to symbol HZ
+arch/arm64/configs/exynos8895-greatlte_defconfig:5568:warning: override: reassigning to symbol DEFAULT_TCP_CONG
+arch/arm64/configs/exynos8895-greatlte_defconfig:5569:warning: override: reassigning to symbol NET_SCH_FQ
+arch/arm64/configs/exynos8895-greatlte_defconfig:5576:warning: override: reassigning to symbol ZRAM
+arch/arm64/configs/exynos8895-greatlte_defconfig:5577:warning: override: reassigning to symbol ZSMALLOC
+boolean symbol SND_SOC_MAX98506 tested for 'm'? test forced to 'n'
+#
+# configuration written to .config
+#
+make[1]: Leaving directory '/home/runner/work/android_kernel_samsung_universal8895/android_kernel_samsung_universal8895/out/greatlte'
+make[1]: Entering directory '/home/runner/work/android_kernel_samsung_universal8895/android_kernel_samsung_universal8895/out/greatlte'
+  GEN     ./Makefile
+scripts/kconfig/conf  --olddefconfig Kconfig
+boolean symbol SND_SOC_MAX98506 tested for 'm'? test forced to 'n'
+#
+# configuration written to .config
+#
+make[1]: Leaving directory '/home/runner/work/android_kernel_samsung_universal8895/android_kernel_samsung_universal8895/out/greatlte'

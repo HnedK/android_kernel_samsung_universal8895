@@ -236,6 +236,8 @@ public class MainActivity extends Activity {
                         return writeNode("/proc/sys/net/ipv4/tcp_congestion_control", value);
                     case "thermal_profile":
                         return writeNode("/proc/ekernel/thermal_profile", value);
+                    case "store_mode":
+                        return writeNode("/sys/class/power_supply/battery/store_mode", value);
                     default:
                         return false;
                 }

@@ -2152,15 +2152,8 @@ static void displayport_aux_sel(struct displayport_device *displayport)
 
 bool check_dex_support(struct displayport_device *displayport)
 {
-	if (displayport->ven_id == SAMSUNG_VENDOR_ID
-			&& displayport->prod_id == DEXDOCK_PRODUCT_ID)
-		return true;
-
-#ifdef CONFIG_DISPLAYPORT_ENG
+	/* Always return true to enable DeX on ANY HDMI/Type-C adapter */
 	return true;
-#else
-	return false;
-#endif
 }
 
 #if defined(CONFIG_USB_TYPEC_MANAGER_NOTIFIER)
