@@ -53,9 +53,11 @@ endef
 include/generated/vdso-offsets.h: $(obj)/vdso.so.dbg FORCE
 	$(call if_changed,vdsosym)
 
-# Assembly rules for the .S files. Use the source tree explicitly so
-# O= builds do not look for these inputs in the object directory.
-$(obj-vdso): %.o: $(src)/%.S FORCE
+# Assembly rules for the .S files.  $(obj-vdso) already carries the full
+# $(obj)/ prefix (set by addprefix above), so the pattern stem already
+# includes the relative directory.  Use $(srctree)/%.S so that for O=
+# builds the prerequisites resolve to the source tree.
+$(obj-vdso): %.o: $(srctree)/%.S FORCE
 	$(call if_changed_dep,vdsoas)
 
 # Actual build commands
