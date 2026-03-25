@@ -6,6 +6,7 @@ on:
     branches:
       - main
       - master
+      - 9
     paths:
       - ".github/workflows/kernel-build.yml"
       - "E-Kernel-8895-module/**"
