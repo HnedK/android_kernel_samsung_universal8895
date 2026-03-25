@@ -267,5 +267,11 @@ public class MainActivity extends Activity {
                 // ignore
             }
         }
+
+        @JavascriptInterface
+        public void openElbSettings() {
+            android.content.Intent intent = new android.content.Intent(MainActivity.this, ElbActivity.class);
+            startActivity(intent);
+        }
     }
 }

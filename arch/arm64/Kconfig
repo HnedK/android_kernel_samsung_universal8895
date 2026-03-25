@@ -560,6 +560,13 @@ config DISABLE_CPU_SCHED_DOMAIN_BALANCE
 	help
 	  Disables scheduler load-balancing at CPU sched domain level.
 
+config ELB
+	bool "eLoadBalancer (ELB) custom scheduler"
+	default y
+	help
+	  Enable the custom eLoadBalancer for task packing and big core
+	  migration based on CFS util_avg.
+
 config SCHED_HMP
 	bool "(EXPERIMENTAL) Heterogenous multiprocessor scheduling"
 	depends on DISABLE_CPU_SCHED_DOMAIN_BALANCE && SCHED_MC && FAIR_GROUP_SCHED && !SCHED_AUTOGROUP

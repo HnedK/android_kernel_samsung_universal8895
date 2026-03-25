@@ -48,6 +48,9 @@
 
 #include "sched.h"
 #include "tune.h"
+#ifdef CONFIG_ELB
+#include "elb.h"
+#endif
 
 #ifdef CONFIG_SCHED_HMP
 LIST_HEAD(hmp_domains);
@@ -6723,12 +6726,21 @@ static int cpu_util(int cpu)
 static int
 select_task_rq_fair(struct task_struct *p, int prev_cpu, int sd_flag, int wake_flags)
 {
+#ifdef CONFIG_ELB
+	int elb_target;
+#endif
 	struct sched_domain *tmp, *affine_sd = NULL, *sd = NULL;
 	int cpu = smp_processor_id();
 	int new_cpu = prev_cpu;
 	int want_affine = 0;
 	int sync = wake_flags & WF_SYNC;
 	int thread_pid;
+
+#ifdef CONFIG_ELB
+	elb_target = elb_select_cpu(p, prev_cpu, sd_flag, wake_flags);
+	if (elb_target >= 0)
+		return elb_target;
+#endif
 
 	if (hmp_wakeup_to_idle_cpu)
 		sd_flag |= SD_BALANCE_WAKE;

@@ -81,6 +81,13 @@ select:focus,input:focus{border-color:var(--accent)}
 
 <div class="panel" id="p-cpu">
 <div class="card">
+<h3>eLoadBalancer (ELB)</h3>
+<div class="row">
+<label>Configure Custom Scheduler</label>
+<button class="btn btn-primary" onclick="openElb()">Open ELB Settings</button>
+</div>
+</div>
+<div class="card">
 <h3>CPU Governor</h3>
 <div class="row">
 <label>Governor</label>
@@ -217,6 +224,7 @@ function readConfig(k){var b=B();return b?b.readConfig(k):''}
 function writeConfig(k,v){var b=B();return b?b.writeConfig(k,v):false}
 function applyTuning(k,v){var b=B();return b?b.applyTuning(k,v):false}
 function reboot(){var b=B();if(b)b.reboot()}
+function openElb(){var b=B();if(b)b.openElbSettings()}
 
 function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1500)}
 

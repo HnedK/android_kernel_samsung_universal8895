@@ -16,6 +16,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.ekernel.manager.ElbActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+        </activity>
 
         <service android:name=".BatteryIdleTileService"
             android:label="Battery Bypass"
