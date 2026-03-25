@@ -31,7 +31,7 @@ $(obj)/vdso.o : $(obj)/vdso.so
 
 # Build the linker script from the source tree so O= builds do not
 # incorrectly look for vdso.lds.S in the object directory.
-$(obj)/vdso.lds: $(srctree)/$(src)/vdso.lds.S FORCE
+$(obj)/vdso.lds: $(src)/vdso.lds.S FORCE
 	$(call if_changed_dep,cpp_lds_S)
 
 # Link rule for the .so file, .lds has to be first
@@ -55,7 +55,7 @@ include/generated/vdso-offsets.h: $(obj)/vdso.so.dbg FORCE
 
 # Assembly rules for the .S files. Use the source tree explicitly so
 # O= builds do not look for these inputs in the object directory.
-$(obj-vdso): %.o: $(srctree)/$(src)/%.S FORCE
+$(obj-vdso): %.o: $(src)/%.S FORCE
 	$(call if_changed_dep,vdsoas)
 
 # Actual build commands
