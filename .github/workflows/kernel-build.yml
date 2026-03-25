@@ -178,7 +178,7 @@ jobs:
             zip -r ../package/ekernel-module.zip .
           )
 
-      - name: Collect greatlte artifacts
+      - name: Collect greatlte artifacts and Package TWRP Zip
         run: |
           mkdir -p artifacts/package/dts/exynos
           mv artifacts/package/app-debug.apk artifacts/package/ekernel-app.apk
@@ -189,7 +189,17 @@ jobs:
           cp "${OUT_DIR}/arch/arm64/boot/Image.gz-dtb" artifacts/package/
           cp "${OUT_DIR}/arch/arm64/boot/dtb.img" artifacts/package/
           cp "${OUT_DIR}/arch/arm64/boot/dts/exynos/${DEVICE_DTB}" artifacts/package/dts/exynos/
-          cp EKernel-8895/anykernel.sh artifacts/package/
+          
+          # Build TWRP-flashable AnyKernel3 Zip
+          cp -a EKernel-8895 artifacts/anykernel
+          cp artifacts/package/ekernel-app.apk artifacts/anykernel/
+          cp artifacts/package/ekernel-module.zip artifacts/anykernel/
+          cp "${OUT_DIR}/arch/arm64/boot/Image.gz-dtb" artifacts/anykernel/
+          cp "${OUT_DIR}/arch/arm64/boot/dtb.img" artifacts/anykernel/ || true
+          (
+            cd artifacts/anykernel
+            zip -r9 ../package/EKernel-8895-greatlte-Flashable.zip * -x .git README.md *placeholder
+          )
 
       - name: Upload greatlte artifacts
         uses: actions/upload-artifact@v4
