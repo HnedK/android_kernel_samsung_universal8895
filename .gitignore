@@ -14,7 +14,7 @@
 *.o.*
 *.a
 *.s
-!/arch/arm64/kernel/vdso/*.S
+!*.S
 *.ko
 *.so
 *.so.dbg
