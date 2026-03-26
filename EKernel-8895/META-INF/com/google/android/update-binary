@@ -1,0 +1,12 @@
+#!/sbin/sh
+# AnyKernel3 Update Binary
+# (c) 2019-2023 osm0sis @ xda-developers
+
+OUTFD=$2
+ZIPFILE=$3
+
+# Extract anykernel.sh
+unzip -o "$ZIPFILE" "anykernel.sh" -d /tmp/anykernel
+
+# Run it
+/sbin/sh /tmp/anykernel/anykernel.sh "$OUTFD" "$ZIPFILE"
