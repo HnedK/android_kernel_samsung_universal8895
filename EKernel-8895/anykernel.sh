@@ -58,6 +58,7 @@ init_module_defaults() {
     set_default_config "vfs_cache_pressure" "80";
     set_default_config "tcp_congestion" "bbr";
     set_default_config "thermal_profile" "0";
+    set_default_config "store_mode" "0";
 }
 
 install_module_payload() {

@@ -23,7 +23,7 @@
         </activity>
 
         <service android:name=".BatteryIdleTileService"
-            android:label="Battery Bypass"
+            android:label="Battery Charge Limit"
             android:icon="@android:drawable/ic_lock_idle_charging"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true">

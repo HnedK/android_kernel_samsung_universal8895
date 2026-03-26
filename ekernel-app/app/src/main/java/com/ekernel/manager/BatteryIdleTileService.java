@@ -22,11 +22,10 @@ public class BatteryIdleTileService extends TileService {
         try {
             Process p = Runtime.getRuntime().exec("su");
             DataOutputStream os = new DataOutputStream(p.getOutputStream());
-            if (isActive) {
-                os.writeBytes("printf '0\\n' > /sys/class/power_supply/battery/store_mode\n");
-            } else {
-                os.writeBytes("printf '1\\n' > /sys/class/power_supply/battery/store_mode\n");
-            }
+            String value = isActive ? "0" : "1";
+            os.writeBytes("mkdir -p /data/ekernel/config\n");
+            os.writeBytes("printf '" + value + "\\n' > /data/ekernel/config/store_mode\n");
+            os.writeBytes("printf '" + value + "\\n' > /sys/class/power_supply/battery/store_mode\n");
             os.writeBytes("exit\n");
             os.flush();
             p.waitFor();
@@ -50,14 +49,14 @@ public class BatteryIdleTileService extends TileService {
             
             if ("1".equals(res)) {
                 tile.setState(Tile.STATE_ACTIVE);
-                tile.setLabel("Bypass: ON");
+                tile.setLabel("Store Mode: ON");
             } else {
                 tile.setState(Tile.STATE_INACTIVE);
-                tile.setLabel("Bypass: OFF");
+                tile.setLabel("Store Mode: OFF");
             }
         } catch (Exception e) {
             tile.setState(Tile.STATE_UNAVAILABLE);
-            tile.setLabel("Bypass Error");
+            tile.setLabel("Store Mode Error");
         }
         tile.updateTile();
     }
