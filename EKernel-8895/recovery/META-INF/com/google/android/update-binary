@@ -1,0 +1,78 @@
+#!/sbin/sh
+
+device=$(cat /proc/cmdline 2>/dev/null | sed 's/ /\n/g' | grep 'androidboot.bootloader')
+if [ -z "$device" ]; then
+    device="$1"
+fi
+
+if [ "$2" = "0" ]; then
+    OUTFD="/dev/null"
+else
+    OUTFD="/proc/self/fd/$2"
+fi
+ZIP="$3"
+
+ui_print() {
+    echo -n -e "ui_print $1\n" > "$OUTFD"
+    echo -n -e "ui_print\n" > "$OUTFD"
+}
+
+abort_install() {
+    ui_print " "
+    ui_print "$1"
+    ui_print " "
+    exit 1
+}
+
+if ! echo "$device" | grep -q 'N950'; then
+    abort_install "Unsupported device. This package is for greatlte / Note8 only."
+fi
+
+cd /tmp || abort_install "Cannot access /tmp."
+rm -rf ekernel ekernel-work
+mkdir -p ekernel ekernel-work || abort_install "Cannot create work directories."
+cd ekernel || abort_install "Cannot enter package directory."
+
+unzip -o "$ZIP" >/dev/null 2>&1 || abort_install "Zip extraction failed."
+chmod 755 /tmp/ekernel/tools/* >/dev/null 2>&1
+
+bb=/tmp/ekernel/tools/busybox
+imgtool=/tmp/ekernel/tools/magiskboot
+boot=$($bb find /dev/block/platform -iname boot | head -n1)
+
+[ -n "$boot" ] || abort_install "Could not locate boot partition."
+[ -f /tmp/ekernel/kernel ] || abort_install "Missing kernel payload."
+[ -f /tmp/ekernel/extra ] || abort_install "Missing extra payload."
+[ -x "$imgtool" ] || abort_install "Missing magiskboot tool."
+
+ui_print " "
+ui_print "E-Kernel 8895 Installer"
+ui_print " "
+ui_print "Detected device: $device"
+ui_print "Boot block: $boot"
+ui_print "- Repacking current boot image"
+
+cd /tmp/ekernel-work || abort_install "Cannot enter work directory."
+dd if="$boot" of=old-boot.img bs=4096 >/dev/null 2>&1 || abort_install "Boot dump failed."
+"$imgtool" unpack old-boot.img >/dev/null 2>&1 || abort_install "Boot unpack failed."
+
+rm -f kernel extra
+cp /tmp/ekernel/kernel kernel || abort_install "Kernel copy failed."
+cp /tmp/ekernel/extra extra || abort_install "Extra copy failed."
+
+"$imgtool" repack -n old-boot.img >/dev/null 2>&1 || abort_install "Boot repack failed."
+[ -f new-boot.img ] || abort_install "magiskboot did not create new-boot.img."
+
+ui_print "- Flashing new boot image"
+dd if=new-boot.img of="$boot" bs=4096 >/dev/null 2>&1 || abort_install "Boot flash failed."
+sync
+
+ui_print "- Cleaning up"
+rm -rf /tmp/ekernel /tmp/ekernel-work
+
+ui_print " "
+ui_print "E-Kernel 8895 installed"
+ui_print "Reboot and verify boot first"
+ui_print " "
+
+exit 0
