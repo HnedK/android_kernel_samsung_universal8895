@@ -1,0 +1,39 @@
+#!/sbin/sh
+
+if [ "$2" = "0" ] || [ -z "$2" ]; then
+    OUTFD="/dev/null";
+else
+    OUTFD="/proc/self/fd/$2";
+fi
+
+ZIP="$3";
+AKHOME=/tmp/anykernel3;
+
+ui_print() {
+    echo -n -e "ui_print $1\n" > "$OUTFD";
+    echo -n -e "ui_print\n" > "$OUTFD";
+}
+
+abort_install() {
+    ui_print " ";
+    ui_print "$1";
+    ui_print " ";
+    exit 1;
+}
+
+rm -rf "$AKHOME";
+mkdir -p "$AKHOME" || abort_install "Cannot create AnyKernel work directory.";
+cd "$AKHOME" || abort_install "Cannot access AnyKernel work directory.";
+
+unzip -o "$ZIP" >/dev/null 2>&1 || abort_install "Zip extraction failed.";
+chmod 0755 "$AKHOME/anykernel.sh" >/dev/null 2>&1;
+chmod 0755 "$AKHOME/tools/"* >/dev/null 2>&1;
+
+export AKHOME;
+export OUTFD;
+
+sh "$AKHOME/anykernel.sh";
+status=$?;
+
+rm -rf "$AKHOME";
+exit "$status";

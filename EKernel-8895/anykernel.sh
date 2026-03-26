@@ -6,22 +6,32 @@ properties() { '
 kernel.string=E-Kernel 8895 by E-Kernel Team
 do.devicecheck=0
 do.modules=0
-do.systemless=1
+do.systemless=0
 do.cleanup=1
 do.cleanuponabort=0
-device.name1=dreamlte
-device.name2=dream2lte
-device.name3=greatlte
-device.name4=dreamlteks
-device.name5=dream2lteks
+do.ramdisk=0
+device.name1=greatlte
+device.name2=greatltechn
+device.name3=greatlteks
 supported.versions=
 supported.patchlevels=
 '; }
 
 # Shell variables
-block=/dev/block/platform/11120000.ufs/by-name/BOOT;
-is_slot_device=0;
-ramdisk_compression=auto;
+AKHOME="${AKHOME:-$(pwd)}";
+OUTFD="${OUTFD:-/proc/self/fd/1}";
+
+ui_print() {
+    echo -n -e "ui_print $1\n" > "$OUTFD";
+    echo -n -e "ui_print\n" > "$OUTFD";
+}
+
+abort() {
+    ui_print " ";
+    ui_print "$1";
+    ui_print " ";
+    exit 1;
+}
 
 ensure_ekernel_dirs() {
     mkdir -p /data/ekernel /data/ekernel/config 2>/dev/null;
@@ -84,15 +94,21 @@ stage_manager_apk() {
     fi
 }
 
-## AnyKernel methods (DO NOT CHANGE)
-. tools/ak3-core.sh;
-
 ## AnyKernel install
-[ -f /tmp/anykernel3/boot.img ] && AKHOME=/tmp/anykernel3;
-[ -f /tmp/anykernel/boot.img ] && AKHOME=/tmp/anykernel;
-[ -f "$AKHOME/boot.img" ] || abort "Missing boot.img payload. Aborting...";
-ui_print "  Flashing boot image from $AKHOME/boot.img...";
-dd if="$AKHOME/boot.img" of="$block" bs=4096 conv=fsync || abort "Flashing boot image failed. Aborting...";
+bb=$AKHOME/tools/busybox;
+boot=$($bb find /dev/block/platform -iname boot);
+[ -n "$boot" ] || abort "Could not locate boot partition. Aborting...";
+[ -x "$AKHOME/tools/magiskboot" ] || abort "Missing magiskboot tool. Aborting...";
+[ -f "$AKHOME/Image.gz-dtb" ] || abort "Missing Image.gz-dtb payload. Aborting...";
+
+cd "$AKHOME" || abort "Could not access installer workspace. Aborting...";
+dd if="$boot" of="$AKHOME/old-boot.img" bs=4096 >/dev/null 2>&1 || abort "Boot dump failed. Aborting...";
+./tools/magiskboot unpack "$AKHOME/old-boot.img" >/dev/null 2>&1 || abort "Boot unpack failed. Aborting...";
+rm -f kernel;
+cp "$AKHOME/Image.gz-dtb" kernel || abort "Kernel copy failed. Aborting...";
+./tools/magiskboot repack -n "$AKHOME/old-boot.img" >/dev/null 2>&1 || abort "Boot repack failed. Aborting...";
+dd if="$AKHOME/new-boot.img" of="$boot" bs=4096 >/dev/null 2>&1 || abort "Boot flash failed. Aborting...";
+sync;
 
 ## Post-install
 ui_print " ";

@@ -178,9 +178,9 @@ jobs:
             zip -r ../package/ekernel-module.zip .
           )
 
-      - name: Collect greatlte artifacts and Package TWRP Zip
+      - name: Collect greatlte artifacts and package flashable zip
         run: |
-          mkdir -p artifacts/package/dts/exynos artifacts/flashable
+          mkdir -p artifacts/package/dts/exynos artifacts/flashable/META-INF/com/google/android artifacts/flashable/tools
           mv artifacts/package/app-debug.apk artifacts/package/ekernel-app.apk
           cp "${OUT_DIR}/.config" artifacts/package/
           cp "${OUT_DIR}/System.map" artifacts/package/
@@ -189,11 +189,18 @@ jobs:
           cp "${OUT_DIR}/arch/arm64/boot/Image.gz-dtb" artifacts/package/
           cp "${OUT_DIR}/arch/arm64/boot/dtb.img" artifacts/package/
           cp "${OUT_DIR}/arch/arm64/boot/dts/exynos/${DEVICE_DTB}" artifacts/package/dts/exynos/
+          cp EKernel-8895/FLASHING.txt artifacts/package/
           
-          # Build hades-style TWRP-flashable zip
-          cp -a EKernel-8895/recovery/. artifacts/flashable/
-          cp "${OUT_DIR}/arch/arm64/boot/Image.gz" artifacts/flashable/kernel
-          cp "${OUT_DIR}/arch/arm64/boot/dtb.img" artifacts/flashable/extra
+          # Build Samsung-safe flashable zip that repacks the current boot image
+          cp EKernel-8895/anykernel.sh artifacts/flashable/
+          cp EKernel-8895/FLASHING.txt artifacts/flashable/
+          cp EKernel-8895/META-INF/com/google/android/update-binary artifacts/flashable/META-INF/com/google/android/
+          cp EKernel-8895/META-INF/com/google/android/updater-script artifacts/flashable/META-INF/com/google/android/
+          cp -a EKernel-8895/tools/. artifacts/flashable/tools/
+          cp artifacts/package/ekernel-module.zip artifacts/flashable/
+          cp artifacts/package/ekernel-app.apk artifacts/flashable/
+          cp "${OUT_DIR}/arch/arm64/boot/Image.gz-dtb" artifacts/flashable/
+          chmod 0755 artifacts/flashable/anykernel.sh artifacts/flashable/META-INF/com/google/android/update-binary artifacts/flashable/tools/*
           
           (
             cd artifacts/flashable

@@ -1,0 +1,17 @@
+E-Kernel 8895 flashing notes
+============================
+
+Use only the generated flashable ZIP from recovery.
+
+Do not flash raw kernel artifacts like Image.gz, Image.gz-dtb, or dtb.img with dd.
+Samsung boot partitions require a valid repacked boot.img with the original boot
+header preserved. Writing a raw kernel image directly to BOOT can trigger
+"Invalid RAMdisk length" and leave the device unbootable.
+
+Recovery after a bad kernel flash:
+- Do not try to recover with repeated dirty flashes.
+- Format Data, then wipe System / Cache / Dalvik.
+- Reflash the ROM and this kernel from scratch.
+
+This package repacks the current boot image, keeps the existing ramdisk, and
+only replaces the kernel payload.
