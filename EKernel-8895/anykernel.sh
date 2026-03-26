@@ -93,7 +93,10 @@ set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 
 ## AnyKernel install
 # boot install
-dd if=$AKHOME/Image.gz-dtb of=/dev/block/platform/11120000.ufs/by-name/BOOT;
+[ -f /tmp/anykernel3/Image.gz-dtb ] && AKHOME=/tmp/anykernel3;
+[ -f /tmp/anykernel/Image.gz-dtb ] && AKHOME=/tmp/anykernel;
+ui_print "  Flashing kernel from $AKHOME/Image.gz-dtb...";
+dd if=$AKHOME/Image.gz-dtb of=/dev/block/platform/11120000.ufs/by-name/BOOT bs=4096;
 
 ## Post-install
 ui_print " ";
