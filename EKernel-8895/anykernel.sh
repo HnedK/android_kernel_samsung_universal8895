@@ -9,7 +9,6 @@ do.modules=0
 do.systemless=1
 do.cleanup=1
 do.cleanuponabort=0
-do.ramdisk=0
 device.name1=dreamlte
 device.name2=dream2lte
 device.name3=greatlte
@@ -93,8 +92,8 @@ set_perm_recursive 0 0 755 644 $ramdisk/*;
 set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 
 ## AnyKernel install
-dump_boot;
-write_boot;
+split_boot;
+flash_boot;
 
 ## Post-install
 ui_print " ";
