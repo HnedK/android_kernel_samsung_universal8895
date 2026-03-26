@@ -92,7 +92,7 @@ set_perm_recursive 0 0 755 644 $ramdisk/*;
 set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 
 ## AnyKernel install
-dump_boot;
+split_boot;
 
 ensure_ekernel_dirs;
 
@@ -103,7 +103,7 @@ else
     ui_print "  Boot backup failed";
 fi
 
-write_boot;
+flash_boot;
 
 ## Post-install
 ui_print " ";
