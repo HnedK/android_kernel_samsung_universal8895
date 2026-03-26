@@ -4,7 +4,7 @@
 ## AnyKernel setup
 properties() { '
 kernel.string=E-Kernel 8895 by E-Kernel Team
-do.devicecheck=1
+do.devicecheck=0
 do.modules=0
 do.systemless=1
 do.cleanup=1
@@ -93,16 +93,6 @@ set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 
 ## AnyKernel install
 split_boot;
-
-ensure_ekernel_dirs;
-
-ui_print "  Backing up original boot image...";
-if dd if="$block" of=/data/ekernel/boot_backup.img bs=4096 2>/dev/null; then
-    ui_print "  Backup saved to /data/ekernel/boot_backup.img";
-else
-    ui_print "  Boot backup failed";
-fi
-
 flash_boot;
 
 ## Post-install
