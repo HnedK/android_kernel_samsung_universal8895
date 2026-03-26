@@ -92,8 +92,8 @@ set_perm_recursive 0 0 755 644 $ramdisk/*;
 set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 
 ## AnyKernel install
-split_boot;
-flash_boot;
+# boot install
+dd if=$AKHOME/Image.gz-dtb of=/dev/block/platform/11120000.ufs/by-name/BOOT;
 
 ## Post-install
 ui_print " ";
