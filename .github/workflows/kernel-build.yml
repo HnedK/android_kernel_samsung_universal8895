@@ -191,14 +191,21 @@ jobs:
           cp "${OUT_DIR}/arch/arm64/boot/dts/exynos/${DEVICE_DTB}" artifacts/package/dts/exynos/
           
           # Build TWRP-flashable AnyKernel3 Zip
-          cp -a EKernel-8895 artifacts/anykernel
+          git clone --depth=1 https://github.com/osm0sis/AnyKernel3.git artifacts/anykernel
+          rm -rf artifacts/anykernel/.git artifacts/anykernel/README.md
+          
+          # Overlay user's custom files (anykernel.sh, etc.)
+          cp -a EKernel-8895/. artifacts/anykernel/
+          
+          # Inject build artifacts
           cp artifacts/package/ekernel-app.apk artifacts/anykernel/
           cp artifacts/package/ekernel-module.zip artifacts/anykernel/
           cp "${OUT_DIR}/arch/arm64/boot/Image.gz-dtb" artifacts/anykernel/
           cp "${OUT_DIR}/arch/arm64/boot/dtb.img" artifacts/anykernel/ || true
+          
           (
             cd artifacts/anykernel
-            zip -r9 ../package/EKernel-8895-greatlte-Flashable.zip * -x .git README.md *placeholder
+            zip -r9 ../package/EKernel-8895-greatlte-Flashable.zip * -x *placeholder
           )
 
       - name: Upload greatlte artifacts
