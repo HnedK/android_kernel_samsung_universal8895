@@ -9,6 +9,7 @@ do.modules=0
 do.systemless=1
 do.cleanup=1
 do.cleanuponabort=0
+do.ramdisk=0
 device.name1=dreamlte
 device.name2=dream2lte
 device.name3=greatlte
@@ -92,11 +93,8 @@ set_perm_recursive 0 0 755 644 $ramdisk/*;
 set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
 
 ## AnyKernel install
-# boot install
-[ -f /tmp/anykernel3/Image.gz-dtb ] && AKHOME=/tmp/anykernel3;
-[ -f /tmp/anykernel/Image.gz-dtb ] && AKHOME=/tmp/anykernel;
-ui_print "  Flashing kernel from $AKHOME/Image.gz-dtb...";
-dd if=$AKHOME/Image.gz-dtb of=/dev/block/platform/11120000.ufs/by-name/BOOT bs=4096;
+dump_boot;
+write_boot;
 
 ## Post-install
 ui_print " ";
