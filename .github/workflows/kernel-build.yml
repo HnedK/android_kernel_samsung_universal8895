@@ -105,6 +105,7 @@ jobs:
       OUT_DIR: out/greatlte
       DEFCONFIG: exynos8895-greatlte_defconfig
       DEVICE_DTB: exynos8895-greatlte_eur_open_06.dtb
+      BASE_BOOT_REPO_PATH: EKernel-8895/base/boot.emmc.win
 
     steps:
       - name: Checkout
@@ -178,6 +179,28 @@ jobs:
             zip -r ../package/ekernel-module.zip .
           )
 
+      - name: Resolve base boot image
+        env:
+          BASE_BOOT_URL: ${{ secrets.GREATLTE_BASE_BOOT_URL }}
+        run: |
+          mkdir -p artifacts/base
+          if [ -f "${BASE_BOOT_REPO_PATH}" ]; then
+            cp "${BASE_BOOT_REPO_PATH}" artifacts/base/boot.emmc.win
+          elif [ -n "${BASE_BOOT_URL}" ]; then
+            curl -L "${BASE_BOOT_URL}" -o artifacts/base/boot.emmc.win
+          else
+            echo "Missing base boot image. Add ${BASE_BOOT_REPO_PATH} or set GREATLTE_BASE_BOOT_URL."
+            exit 1
+          fi
+
+      - name: Build full boot image
+        run: |
+          python3 scripts/repack_legacy_bootimg.py \
+            --base-boot artifacts/base/boot.emmc.win \
+            --kernel "${OUT_DIR}/arch/arm64/boot/Image.gz" \
+            --dtb "${OUT_DIR}/arch/arm64/boot/dtb.img" \
+            --output artifacts/package/boot.img
+
       - name: Collect greatlte artifacts and Package TWRP Zip
         run: |
           mkdir -p artifacts/package/dts/exynos
@@ -200,8 +223,7 @@ jobs:
           # Inject build artifacts
           cp artifacts/package/ekernel-app.apk artifacts/anykernel/
           cp artifacts/package/ekernel-module.zip artifacts/anykernel/
-          cp "${OUT_DIR}/arch/arm64/boot/Image.gz-dtb" artifacts/anykernel/
-          cp "${OUT_DIR}/arch/arm64/boot/dtb.img" artifacts/anykernel/ || true
+          cp artifacts/package/boot.img artifacts/anykernel/
           
           (
             cd artifacts/anykernel

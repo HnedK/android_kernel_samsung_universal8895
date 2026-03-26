@@ -87,13 +87,12 @@ stage_manager_apk() {
 ## AnyKernel methods (DO NOT CHANGE)
 . tools/ak3-core.sh;
 
-## AnyKernel file attributes
-set_perm_recursive 0 0 755 644 $ramdisk/*;
-set_perm_recursive 0 0 750 750 $ramdisk/init* $ramdisk/sbin;
-
 ## AnyKernel install
-split_boot;
-flash_boot;
+[ -f /tmp/anykernel3/boot.img ] && AKHOME=/tmp/anykernel3;
+[ -f /tmp/anykernel/boot.img ] && AKHOME=/tmp/anykernel;
+[ -f "$AKHOME/boot.img" ] || abort "Missing boot.img payload. Aborting...";
+ui_print "  Flashing boot image from $AKHOME/boot.img...";
+dd if="$AKHOME/boot.img" of="$block" bs=4096 conv=fsync || abort "Flashing boot image failed. Aborting...";
 
 ## Post-install
 ui_print " ";
