@@ -65,6 +65,14 @@ resolve_extra_payload() {
     return 1
 }
 
+stage_payload_copy() {
+    local source="$1"
+    local staged="$2"
+
+    [ -n "$source" ] || return 1
+    cp "$source" "$staged" || return 1
+}
+
 ensure_ekernel_dirs() {
     mkdir -p /data/ekernel /data/ekernel/config 2>/dev/null;
 }
@@ -134,17 +142,25 @@ boot=$(find_boot_block);
 [ -x "$AKHOME/tools/magiskboot" ] || abort "Missing magiskboot tool. Aborting...";
 kernel_payload=$(resolve_kernel_payload) || abort "Missing kernel payload (expected kernel or Image.gz-dtb). Aborting...";
 extra_payload=$(resolve_extra_payload || true);
+staged_kernel="$AKHOME/.ak3-kernel";
+staged_extra="$AKHOME/.ak3-extra";
+
+rm -f "$staged_kernel" "$staged_extra";
+stage_payload_copy "$kernel_payload" "$staged_kernel" || abort "Kernel staging failed. Aborting...";
+if [ -n "$extra_payload" ]; then
+    stage_payload_copy "$extra_payload" "$staged_extra" || abort "Extra staging failed. Aborting...";
+fi
 
 cd "$AKHOME" || abort "Could not access installer workspace. Aborting...";
 dd if="$boot" of="$AKHOME/old-boot.img" bs=4096 >/dev/null 2>&1 || abort "Boot dump failed. Aborting...";
 ./tools/magiskboot unpack "$AKHOME/old-boot.img" >/dev/null 2>&1 || abort "Boot unpack failed. Aborting...";
 [ -f kernel ] || abort "Boot unpack did not produce a kernel blob. Aborting...";
 rm -f kernel;
-cp "$kernel_payload" kernel || abort "Kernel copy failed. Aborting...";
+cp "$staged_kernel" kernel || abort "Kernel copy failed. Aborting...";
 if [ -n "$extra_payload" ]; then
     [ -f extra ] || abort "Package contains extra payload but unpacked boot image has no extra blob. Aborting...";
     rm -f extra;
-    cp "$extra_payload" extra || abort "Extra copy failed. Aborting...";
+    cp "$staged_extra" extra || abort "Extra copy failed. Aborting...";
 fi
 ./tools/magiskboot repack -n "$AKHOME/old-boot.img" >/dev/null 2>&1 || abort "Boot repack failed. Aborting...";
 [ -f "$AKHOME/new-boot.img" ] || abort "Repack did not create new-boot.img. Aborting...";
