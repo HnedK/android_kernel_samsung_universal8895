@@ -14,4 +14,7 @@ Recovery after a bad kernel flash:
 - Reflash the ROM and this kernel from scratch.
 
 This package repacks the current boot image, keeps the existing ramdisk, and
-only replaces the kernel payload.
+replaces the kernel payload from either `kernel` or `Image.gz-dtb`.
+
+If the package also ships an `extra` blob, that is replaced too. Otherwise the
+existing unpacked `extra` blob is preserved.

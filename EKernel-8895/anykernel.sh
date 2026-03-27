@@ -33,6 +33,24 @@ abort() {
     exit 1;
 }
 
+find_boot_block() {
+    $bb find /dev/block/platform -iname boot | $bb head -n1
+}
+
+resolve_kernel_payload() {
+    if [ -f "$AKHOME/kernel" ]; then
+        printf '%s\n' "$AKHOME/kernel"
+        return 0
+    fi
+
+    if [ -f "$AKHOME/Image.gz-dtb" ]; then
+        printf '%s\n' "$AKHOME/Image.gz-dtb"
+        return 0
+    fi
+
+    return 1
+}
+
 ensure_ekernel_dirs() {
     mkdir -p /data/ekernel /data/ekernel/config 2>/dev/null;
 }
@@ -97,17 +115,24 @@ stage_manager_apk() {
 
 ## AnyKernel install
 bb=$AKHOME/tools/busybox;
-boot=$($bb find /dev/block/platform -iname boot);
+boot=$(find_boot_block);
 [ -n "$boot" ] || abort "Could not locate boot partition. Aborting...";
 [ -x "$AKHOME/tools/magiskboot" ] || abort "Missing magiskboot tool. Aborting...";
-[ -f "$AKHOME/Image.gz-dtb" ] || abort "Missing Image.gz-dtb payload. Aborting...";
+kernel_payload=$(resolve_kernel_payload) || abort "Missing kernel payload (expected kernel or Image.gz-dtb). Aborting...";
 
 cd "$AKHOME" || abort "Could not access installer workspace. Aborting...";
 dd if="$boot" of="$AKHOME/old-boot.img" bs=4096 >/dev/null 2>&1 || abort "Boot dump failed. Aborting...";
 ./tools/magiskboot unpack "$AKHOME/old-boot.img" >/dev/null 2>&1 || abort "Boot unpack failed. Aborting...";
+[ -f kernel ] || abort "Boot unpack did not produce a kernel blob. Aborting...";
 rm -f kernel;
-cp "$AKHOME/Image.gz-dtb" kernel || abort "Kernel copy failed. Aborting...";
+cp "$kernel_payload" kernel || abort "Kernel copy failed. Aborting...";
+if [ -f "$AKHOME/extra" ]; then
+    [ -f extra ] || abort "Package contains extra payload but unpacked boot image has no extra blob. Aborting...";
+    rm -f extra;
+    cp "$AKHOME/extra" extra || abort "Extra copy failed. Aborting...";
+fi
 ./tools/magiskboot repack -n "$AKHOME/old-boot.img" >/dev/null 2>&1 || abort "Boot repack failed. Aborting...";
+[ -f "$AKHOME/new-boot.img" ] || abort "Repack did not create new-boot.img. Aborting...";
 dd if="$AKHOME/new-boot.img" of="$boot" bs=4096 >/dev/null 2>&1 || abort "Boot flash failed. Aborting...";
 sync;
 
