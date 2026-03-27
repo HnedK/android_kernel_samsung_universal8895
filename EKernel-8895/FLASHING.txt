@@ -16,5 +16,5 @@ Recovery after a bad kernel flash:
 This package repacks the current boot image, keeps the existing ramdisk, and
 replaces the kernel payload from either `kernel` or `Image.gz-dtb`.
 
-If the package also ships an `extra` blob, that is replaced too. Otherwise the
-existing unpacked `extra` blob is preserved.
+If the package also ships an `extra` blob, or a `dtb.img` to use as that blob,
+it is replaced too. Otherwise the existing unpacked `extra` blob is preserved.

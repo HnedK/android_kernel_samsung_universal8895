@@ -51,6 +51,20 @@ resolve_kernel_payload() {
     return 1
 }
 
+resolve_extra_payload() {
+    if [ -f "$AKHOME/extra" ]; then
+        printf '%s\n' "$AKHOME/extra"
+        return 0
+    fi
+
+    if [ -f "$AKHOME/dtb.img" ]; then
+        printf '%s\n' "$AKHOME/dtb.img"
+        return 0
+    fi
+
+    return 1
+}
+
 ensure_ekernel_dirs() {
     mkdir -p /data/ekernel /data/ekernel/config 2>/dev/null;
 }
@@ -119,6 +133,7 @@ boot=$(find_boot_block);
 [ -n "$boot" ] || abort "Could not locate boot partition. Aborting...";
 [ -x "$AKHOME/tools/magiskboot" ] || abort "Missing magiskboot tool. Aborting...";
 kernel_payload=$(resolve_kernel_payload) || abort "Missing kernel payload (expected kernel or Image.gz-dtb). Aborting...";
+extra_payload=$(resolve_extra_payload || true);
 
 cd "$AKHOME" || abort "Could not access installer workspace. Aborting...";
 dd if="$boot" of="$AKHOME/old-boot.img" bs=4096 >/dev/null 2>&1 || abort "Boot dump failed. Aborting...";
@@ -126,10 +141,10 @@ dd if="$boot" of="$AKHOME/old-boot.img" bs=4096 >/dev/null 2>&1 || abort "Boot d
 [ -f kernel ] || abort "Boot unpack did not produce a kernel blob. Aborting...";
 rm -f kernel;
 cp "$kernel_payload" kernel || abort "Kernel copy failed. Aborting...";
-if [ -f "$AKHOME/extra" ]; then
+if [ -n "$extra_payload" ]; then
     [ -f extra ] || abort "Package contains extra payload but unpacked boot image has no extra blob. Aborting...";
     rm -f extra;
-    cp "$AKHOME/extra" extra || abort "Extra copy failed. Aborting...";
+    cp "$extra_payload" extra || abort "Extra copy failed. Aborting...";
 fi
 ./tools/magiskboot repack -n "$AKHOME/old-boot.img" >/dev/null 2>&1 || abort "Boot repack failed. Aborting...";
 [ -f "$AKHOME/new-boot.img" ] || abort "Repack did not create new-boot.img. Aborting...";
