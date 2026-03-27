@@ -43,6 +43,11 @@ resolve_kernel_payload() {
         return 0
     fi
 
+    if [ -f "$AKHOME/Image" ]; then
+        printf '%s\n' "$AKHOME/Image"
+        return 0
+    fi
+
     if [ -f "$AKHOME/Image.gz-dtb" ]; then
         printf '%s\n' "$AKHOME/Image.gz-dtb"
         return 0
@@ -144,6 +149,10 @@ kernel_payload=$(resolve_kernel_payload) || abort "Missing kernel payload (expec
 extra_payload=$(resolve_extra_payload || true);
 staged_kernel="$AKHOME/.ak3-kernel";
 staged_extra="$AKHOME/.ak3-extra";
+
+if [ -n "$extra_payload" ] && [ -f "$AKHOME/Image.gz-dtb" ] && [ ! -f "$AKHOME/kernel" ] && [ ! -f "$AKHOME/Image" ]; then
+    abort "Package mixes Image.gz-dtb with a separate extra payload. Aborting...";
+fi
 
 rm -f "$staged_kernel" "$staged_extra";
 stage_payload_copy "$kernel_payload" "$staged_kernel" || abort "Kernel staging failed. Aborting...";

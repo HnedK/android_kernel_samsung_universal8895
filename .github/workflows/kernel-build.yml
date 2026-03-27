@@ -167,7 +167,7 @@ jobs:
             CROSS_COMPILE="${CROSS_COMPILE}" \
             CROSS_COMPILE_ARM32="${CROSS_COMPILE_ARM32}" \
             CCACHE= \
-            Image.gz Image.gz-dtb dtbs dtb.img 2>&1 | tee "${OUT_DIR}/build.log"
+            Image Image.gz Image.gz-dtb dtbs dtb.img 2>&1 | tee "${OUT_DIR}/build.log"
 
       - name: Package module zip
         run: |
@@ -185,6 +185,7 @@ jobs:
           cp "${OUT_DIR}/.config" artifacts/package/
           cp "${OUT_DIR}/System.map" artifacts/package/
           cp "${OUT_DIR}/build.log" artifacts/package/
+          cp "${OUT_DIR}/arch/arm64/boot/Image" artifacts/package/
           cp "${OUT_DIR}/arch/arm64/boot/Image.gz" artifacts/package/
           cp "${OUT_DIR}/arch/arm64/boot/Image.gz-dtb" artifacts/package/
           cp "${OUT_DIR}/arch/arm64/boot/dtb.img" artifacts/package/
@@ -199,7 +200,7 @@ jobs:
           cp -a EKernel-8895/tools/. artifacts/flashable/tools/
           cp artifacts/package/ekernel-module.zip artifacts/flashable/
           cp artifacts/package/ekernel-app.apk artifacts/flashable/
-          cp "${OUT_DIR}/arch/arm64/boot/Image.gz-dtb" artifacts/flashable/
+          cp "${OUT_DIR}/arch/arm64/boot/Image" artifacts/flashable/kernel
           cp "${OUT_DIR}/arch/arm64/boot/dtb.img" artifacts/flashable/dtb.img
           chmod 0755 artifacts/flashable/anykernel.sh artifacts/flashable/META-INF/com/google/android/update-binary artifacts/flashable/tools/*
           
