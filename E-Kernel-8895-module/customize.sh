@@ -42,7 +42,6 @@ set_default "dirty_background_ratio" "5"
 set_default "vfs_cache_pressure" "80"
 set_default "tcp_congestion" "bbr"
 set_default "thermal_profile" "0"
-set_default "store_mode" "0"
 
 # Set permissions
 ui_print ""

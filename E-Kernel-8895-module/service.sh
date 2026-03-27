@@ -86,11 +86,6 @@ if [ -f "$CONFIGDIR/thermal_profile" ]; then
     apply_param /proc/ekernel/thermal_profile "$PROFILE"
 fi
 
-# ========= Battery Charge Limit / Store Mode =========
-if [ -f "$CONFIGDIR/store_mode" ]; then
-    apply_param /sys/class/power_supply/battery/store_mode "$(cat $CONFIGDIR/store_mode)"
-fi
-
 # ========= GPU Frequencies =========
 if [ -f "$CONFIGDIR/gpu_max_freq" ]; then
     apply_param /sys/devices/platform/17500000.mali/max_clock "$(cat $CONFIGDIR/gpu_max_freq)"

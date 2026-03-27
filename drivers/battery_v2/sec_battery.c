@@ -5409,10 +5409,12 @@ ssize_t sec_bat_store_attrs(
 	case STORE_MODE:
 		if (sscanf(buf, "%10d\n", &x) == 1) {
 #if !defined(CONFIG_SEC_FACTORY)
-			battery->store_mode = x ? true : false;
-			wake_lock(&battery->parse_mode_dt_wake_lock);
-			queue_delayed_work(battery->monitor_wqueue,
-				&battery->parse_mode_dt_work, 0);
+			if (x) {
+				battery->store_mode = true;
+				wake_lock(&battery->parse_mode_dt_wake_lock);
+				queue_delayed_work(battery->monitor_wqueue,
+					&battery->parse_mode_dt_work, 0);
+			}
 #endif
 			ret = count;
 		}
@@ -9304,43 +9306,6 @@ static void sec_bat_parse_mode_dt(struct sec_battery_info *battery)
 		else
 			pdata->siop_hv_wireless_input_limit_current = SIOP_STORE_HV_WIRELESS_CHARGING_LIMIT_CURRENT;
 		pr_info("%s: update siop_hv_wireless_input_limit_current(%d)\n",
-			__func__, pdata->siop_hv_wireless_input_limit_current);
-	} else {
-		if (pdata->wpc_temp_check) {
-			ret = of_property_read_u32(np, "battery,wpc_high_temp", &temp);
-			if (!ret)
-				pdata->wpc_high_temp = temp;
-
-			ret = of_property_read_u32(np, "battery,wpc_high_temp_recovery", &temp);
-			if (!ret)
-				pdata->wpc_high_temp_recovery = temp;
-
-			ret = of_property_read_u32(np, "battery,wpc_charging_limit_current", &temp);
-			if (!ret)
-				pdata->wpc_charging_limit_current = temp;
-
-			ret = of_property_read_u32(np, "battery,wpc_lcd_on_high_temp", &temp);
-			if (!ret)
-				pdata->wpc_lcd_on_high_temp = (int)temp;
-
-			ret = of_property_read_u32(np, "battery,wpc_lcd_on_high_temp_rec", &temp);
-			if (!ret)
-				pdata->wpc_lcd_on_high_temp_rec = (int)temp;
-
-			pr_info("%s: restore normal mode - wpc high_temp(t:%d, r:%d), lcd_on_high_temp(t:%d, r:%d), curr(%d)\n",
-				__func__,
-				pdata->wpc_high_temp, pdata->wpc_high_temp_recovery,
-				pdata->wpc_lcd_on_high_temp, pdata->wpc_lcd_on_high_temp_rec,
-				pdata->wpc_charging_limit_current);
-		}
-
-		ret = of_property_read_u32(np, "battery,siop_hv_wireless_input_limit_current",
-			&temp);
-		if (!ret)
-			pdata->siop_hv_wireless_input_limit_current = temp;
-		else
-			pdata->siop_hv_wireless_input_limit_current = SIOP_HV_WIRELESS_INPUT_LIMIT_CURRENT;
-		pr_info("%s: restore siop_hv_wireless_input_limit_current(%d)\n",
 			__func__, pdata->siop_hv_wireless_input_limit_current);
 	}
 }
